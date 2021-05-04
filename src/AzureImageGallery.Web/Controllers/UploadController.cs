@@ -1,27 +1,26 @@
-﻿using Azure.Storage.Blobs;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using AzureImageGallery.Data;
 using AzureImageGallery.Web.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace AzureImageGallery.Web.Controllers
 {
     public class UploadController : Controller
     {
-        private readonly string _azureConnectionString;
-        private readonly IConfiguration _config;
-        private readonly IImage _imageService;
+        private string AzureConnectionString { get; }
+        private IConfiguration Configuration { get; }
+        private IImage ImageService { get; }
 
         public UploadController(IConfiguration config, IImage imageService)
         {
-            _config = config;
-            _imageService = imageService;
-            _azureConnectionString = _config.GetConnectionString("AzureStorageConnectionString");
+            Configuration = config;
+            ImageService = imageService;
+            AzureConnectionString = Configuration.GetConnectionString("AzureStorageConnectionString");
         }
 
         //[Authorize]
@@ -42,10 +41,10 @@ namespace AzureImageGallery.Web.Controllers
 
                 if(image.Length > 0)
                 {
-                    var container = new BlobContainerClient(_azureConnectionString, "images");
+                    var container = new BlobContainerClient(AzureConnectionString, "images");
                     var createResponse = await container.CreateIfNotExistsAsync();
 
-                    if(createResponse != null && createResponse.GetRawResponse().Status == 201)
+                    if(createResponse is not null && createResponse.GetRawResponse().Status == 201)
                     {
                         await container.SetAccessPolicyAsync(PublicAccessType.Blob);
                     }
@@ -58,7 +57,7 @@ namespace AzureImageGallery.Web.Controllers
                         await blob.UploadAsync(fileStream, new BlobHttpHeaders { ContentType = image.ContentType });
                     }
 
-                    await _imageService.SetImage(title, tags, blob.Uri);
+                    await ImageService.SetImage(title, tags, blob.Uri);
 
                     return RedirectToAction(nameof(GalleryController.Index), "Gallery", blob.Uri.ToString());
                 }
