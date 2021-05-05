@@ -4,6 +4,8 @@ Azure Image Gallery
 
 </h1>
 
+A fork of [johnmcraig / Azure-image-gallery](https://github.com/johnmcraig/Azure-image-gallery)
+
 <div align="center">
 
 ![visitors](https://vistr.dev/badge?repo=johnmcraig.Azure-image-gallery)
@@ -53,7 +55,7 @@ In order to use this application:
 - Download a zip file or clone the repository.
 
 ```bash
-~$ git clone https://github.com/johnmcraig/azure-image-gallery
+~$ git clone https://github.com/pcshrosbree/azure-image-gallery
 ```
 
 - Then, gather any missing NuGet packages and restore the project files using the DotNet command `dotnet restore` (or Build in Visual Studio).
@@ -61,11 +63,32 @@ In order to use this application:
 - Afterwards, you will need to have an Azure account that has a Blob Storage service. Get the connection string from the account info under Access Keys, then pass them in the User Secrets or Application settings JSON file as:
 `{ "AzureStorageConnectionString": "YourActualKey" }`.
 
-    Additionally, if you do not have an `appsettings.json` file, you will need to create one.
-
 - Make sure you use either Visual Studio Secret Manager or the `dotnet` command line to add the above JSON object (from point #3.) so the CloudStorage class and methods can connect using that string.
 
 - Upon initial startup of the application, if it is currently in development mode, a Sqlite database will be created and a few images will be seeded into the database for testing purposes.
+
+## Configuration
+
+The secrets JSON file should have the form:
+
+```json
+{
+  "ConnectionStrings": {
+    "AzureStorageConnectionString": "<connection string>"
+  }
+}
+```
+
+### **appsettings.json sections**
+
+- ConnectionStrings
+   - `Sqlite` specifies the Sqlite connection string
+- StorageTransferOptions
+   - Specifies transfer options for Azure storage BLOBs as defined in the [StorageTransferOptions Struct](https://docs.microsoft.com/en-us/dotnet/api/azure.storage.storagetransferoptions?view=azure-dotnet)
+- Throttling
+   - `Rate` specifies the percentage of PUT requests to throttle
+- RetryPolicy
+   - Specifies retry policy for Azure as defined in the [RetryOptions Class](https://docs.microsoft.com/en-us/dotnet/api/azure.core.retryoptions?view=azure-dotnet)
 
 ## Technologies
 

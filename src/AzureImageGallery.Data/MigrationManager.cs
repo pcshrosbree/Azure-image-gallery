@@ -1,15 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
+﻿// ----------------------------------------------------------------------------------------------------
+// <copyright file="MigrationManager.cs" company="Microsoft">
+//     Copyright &#169; Microsoft Corporation. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------------------------------------------
 
 namespace AzureImageGallery.Data
 {
+    using System;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+
     public static class MigrationManager
     {
-        public static IHost MigratDatabase(this IHost host)
+        public static IHost MigrateDatabase(this IHost host)
         {
             using (var scope = host.Services.CreateScope())
             {
