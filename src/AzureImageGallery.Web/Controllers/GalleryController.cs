@@ -1,16 +1,20 @@
-﻿using System;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using AzureImageGallery.Data.Models;
-using AzureImageGallery.Data;
-using AzureImageGallery.Web.Models;
-using Microsoft.Extensions.Logging;
-using AzureImageGallery.Web.Helpers;
-using System.Collections.Generic;
+﻿// ----------------------------------------------------------------------------------------------------
+// <copyright file="GalleryController.cs" company="Microsoft">
+//     Copyright &#169; Microsoft Corporation. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------------------------------------------
 
 namespace AzureImageGallery.Web.Controllers
 {
+    using System;
+    using System.Linq;
+    using AzureImageGallery.Data;
+    using AzureImageGallery.Data.Models;
+    using AzureImageGallery.Web.Helpers;
+    using AzureImageGallery.Web.Models;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
+
     public class GalleryController : Controller
     {
         private readonly IImage _imageService;
@@ -22,50 +26,34 @@ namespace AzureImageGallery.Web.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index(string currentFilter, string searchString, int pageNumber = 1, int pageSize = 8)
+        // Delete
+        // Get
+        public IActionResult Delete(int id)
         {
-            ViewData["CurrentFilter"] = searchString;
+            var imageToDelete = _imageService.GetById(id);
 
-            if (pageNumber < 1)
-            {
-                return RedirectToAction("Index", new { pageNumber = 1 });
-            };
+            return View(imageToDelete);
+        }
 
-            if (searchString != null)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(GalleryImage image)
+        {
+            if (image == null)
             {
-                pageNumber = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
+                return NotFound();
             }
 
-            var imageList = _imageService.GetAll().Select(images => new GalleryDetailModel
+            try
             {
-                Id = images.Id,
-                Title = images.Title,
-                Created = images.Created,
-                Url = images.Url,
-                Tags = images.Tags
-                    .Select(t => t.Description)
-                    .ToList()
-            }).ToList();
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                imageList = _imageService.GetAll().Select(images => new GalleryDetailModel
-                {
-                    Id = images.Id,
-                    Title = images.Title,
-                    Created = images.Created,
-                    Url = images.Url,
-                    Tags = images.Tags
-                        .Select(t => t.Description)
-                        .ToList()
-                }).Where(s => s.Title.ToLower().Contains(searchString)).ToList();
+                _imageService.DeleteImage(image.Id);
+                return RedirectToAction(nameof(Index));
             }
-
-            return View(PagedList<GalleryDetailModel>.Create(imageList, pageNumber, pageSize));
+            catch (Exception ex)
+            {
+                _logger.LogError($"{ex.Message}");
+                return View(_imageService.GetById(image.Id));
+            }
         }
 
         public IActionResult Detail(int id)
@@ -114,37 +102,52 @@ namespace AzureImageGallery.Web.Controllers
                 _logger.LogError($"{ex.Message}");
                 return View(changeImage);
             }
-
         }
 
-        // Delete
-        // Get
-        public IActionResult Delete(int id)
+        public IActionResult Index(string currentFilter, string searchString, int pageNumber = 1, int pageSize = 8)
         {
-            var imageToDelete = _imageService.GetById(id);
+            ViewData["CurrentFilter"] = searchString;
 
-            return View(imageToDelete);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(GalleryImage image)
-        {   
-            if(image == null)
+            if (pageNumber < 1)
             {
-                return NotFound();
+                return RedirectToAction("Index", new { pageNumber = 1 });
+            };
+
+            if (searchString != null)
+            {
+                pageNumber = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
             }
 
-            try
+            var imageList = _imageService.GetAll().Select(images => new GalleryDetailModel
             {
-                _imageService.DeleteImage(image.Id);
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
+                Id = images.Id,
+                Title = images.Title,
+                Created = images.Created,
+                Url = images.Url,
+                Tags = images.Tags
+                    .Select(t => t.Description)
+                    .ToList()
+            }).ToList();
+
+            if (!string.IsNullOrEmpty(searchString))
             {
-                _logger.LogError($"{ex.Message}");
-                return View(_imageService.GetById(image.Id));
+                imageList = _imageService.GetAll().Select(images => new GalleryDetailModel
+                {
+                    Id = images.Id,
+                    Title = images.Title,
+                    Created = images.Created,
+                    Url = images.Url,
+                    Tags = images.Tags
+                        .Select(t => t.Description)
+                        .ToList()
+                }).Where(s => s.Title.ToLower().Contains(searchString)).ToList();
             }
+
+            return View(PagedList<GalleryDetailModel>.Create(imageList, pageNumber, pageSize));
         }
     }
 }

@@ -1,16 +1,22 @@
-﻿using AzureImageGallery.Data;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+﻿// ----------------------------------------------------------------------------------------------------
+// <copyright file="Program.cs" company="Microsoft">
+//     Copyright &#169; Microsoft Corporation. All rights reserved.
+// </copyright>
+// ----------------------------------------------------------------------------------------------------
 
 namespace AzureImageGallery.Web
 {
-    public class Program
+    using AzureImageGallery.Data;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.Extensions.Hosting;
+
+    public static class Program
     {
         public static void Main(string[] args)
         {
             CreateHostBuilder(args)
                 .Build()
-                .MigratDatabase()
+                .MigrateDatabase()
                 .Run();
         }
 
