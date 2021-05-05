@@ -70,7 +70,7 @@ namespace AzureImageGallery.Web
         protected bool InterceptRequest(HttpMessage message)
         {
             var request = message.Request;
-            if (request.Method == RequestMethod.Put && ShouldThrottle())
+            if (IsBlobPut(request) && ShouldThrottle())
             {
                 Logger.LogInformation("Throttling request {0}", request.ClientRequestId);
                 var requestHeaders = request.Headers;
@@ -120,6 +120,10 @@ namespace AzureImageGallery.Web
             bool ShouldThrottle() 
                 => new Random(DateTime.Now.Millisecond).NextDouble() < ThrottlingRate;
         }
+
+        private static bool IsBlobPut(Request request) 
+            => request.Method == RequestMethod.Put 
+               && !request.Uri.Query.Contains("restype=container");
 
         private Stopwatch ThrottlingTimer { get; } = new();
 
