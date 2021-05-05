@@ -71,8 +71,8 @@ namespace AzureImageGallery.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(string title, string tags)
         {
-            try
-            {
+            //try
+            //{
                 var formCollection = await Request.ReadFormAsync();
                 var image = formCollection.Files.First();
 
@@ -99,11 +99,11 @@ namespace AzureImageGallery.Web.Controllers
                 }
 
                 return BadRequest();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex}");
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    return StatusCode(500, $"Internal server error: {ex}");
+            //}
         }
     }
 }
