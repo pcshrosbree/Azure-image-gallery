@@ -87,15 +87,11 @@ namespace AzureImageGallery.Web
                 var logger = provider.GetRequiredService<ILogger<FaultInjectionTransport>>();
                 var config = provider.GetRequiredService<IConfiguration>();
                 var section = config.GetSection("Throttling");
-                var text = section?["AvailableInterval"];
-                var available = text is not null && TimeSpan.TryParse(text, out var interval)
-                    ? interval
-                    : TimeSpan.FromSeconds(30);
-                text = section?["ThrottlingInterval"];
-                var throttled = text is not null && TimeSpan.TryParse(text, out interval)
-                    ? interval
-                    : TimeSpan.FromSeconds(10);
-                return new FaultInjectionTransport(HttpClientTransport.Shared, available, throttled, logger);
+                var text = section?["Rate"];
+                var throttlingRate = text is not null && double.TryParse(text, out var rate)
+                    ? rate
+                    : 0;
+                return new FaultInjectionTransport(HttpClientTransport.Shared, throttlingRate, logger);
             });
             services.AddSingleton<HttpPipelineTransport>(provider =>
             {
