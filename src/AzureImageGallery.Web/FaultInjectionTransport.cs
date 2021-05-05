@@ -119,11 +119,12 @@ namespace AzureImageGallery.Web
 
             bool ShouldThrottle() 
                 => new Random(DateTime.Now.Millisecond).NextDouble() < ThrottlingRate;
-        }
 
-        private static bool IsBlobPut(Request request) 
-            => request.Method == RequestMethod.Put 
-               && !request.Uri.Query.Contains("restype=container");
+            static bool IsBlobPut(Request request)
+                => request.Method == RequestMethod.Put
+                   && !request.Uri.Query.Contains("restype=container");
+
+        }
 
         private Stopwatch ThrottlingTimer { get; } = new();
 
