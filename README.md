@@ -90,6 +90,10 @@ The secrets JSON file should have the form:
 - RetryPolicy
    - Specifies retry policy for Azure as defined in the [RetryOptions Class](https://docs.microsoft.com/en-us/dotnet/api/azure.core.retryoptions?view=azure-dotnet)
 
+### Environment variables
+
+If the `AZURE_SDK_TRANSPORT` environment variable is set to `false` then the Azure SDK HttpClientTransport is set to the fault injection transport.
+
 ## Technologies
 
 - C#/ASP.NET Core MVC --version 3.1
