@@ -70,7 +70,7 @@ namespace AzureImageGallery.Web
         protected bool InterceptRequest(HttpMessage message)
         {
             var request = message.Request;
-            if (request.Method == RequestMethod.Put && ShouldThrottle())
+            if (IsBlobPut(request) && ShouldThrottle())
             {
                 Logger.LogInformation("Throttling request {0}", request.ClientRequestId);
                 var requestHeaders = request.Headers;
@@ -100,6 +100,7 @@ namespace AzureImageGallery.Web
                 return true;
             }
 
+            Logger.LogInformation("Sending request {0}", request.ClientRequestId);
             return false;
 
             static bool ReturnClientRequestId(RequestHeaders requestHeaders) 
@@ -117,13 +118,14 @@ namespace AzureImageGallery.Web
                 return stream;
             }
 
-            bool ShouldThrottle() 
-                => new Random(DateTime.Now.Millisecond).NextDouble() < ThrottlingRate;
+            bool ShouldThrottle() => 100 * Random.NextDouble() < ThrottlingRate;
+
+            static bool IsBlobPut(Request request)
+                => request.Method == RequestMethod.Put
+                   && !request.Uri.Query.Contains("restype=container");
         }
 
-        private Stopwatch ThrottlingTimer { get; } = new();
-
-        private Stopwatch AvailableTimer { get; } = new();
+        private Random Random { get; } = new (DateTime.Now.Millisecond);
 
         internal static bool TryGetHeader(HttpHeaders headers, HttpContent? content, string name, [NotNullWhen(true)] out string? value)
         {
